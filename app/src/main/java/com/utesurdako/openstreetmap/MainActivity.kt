@@ -5,8 +5,10 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.collection.LruCache
 import com.utesurdako.openstreetmap.Data.MapField
 import com.utesurdako.openstreetmap.Data.MapTile
+import com.utesurdako.openstreetmap.Utils.MapTileCache
 import com.utesurdako.openstreetmap.databinding.ActivityMainBinding
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -17,7 +19,11 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var pictureModel: Array<Array<Bitmap?>>
 
-    private val sizeField: Int = 5
+    lateinit var lru: LruCache<String, Bitmap>
+    val client = OkHttpClient()
+
+    private val sizeField: Int = 10
+    private val sizeBuffer: Int = 10
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         binding.customView.mapField = MapField(sizeField, sizeField)
         pictureModel = Array(sizeField){ Array(sizeField) { null } }
 
+        lru = LruCache(1024)
+
         getTileMap()
     }
 
@@ -35,9 +43,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun doWork(zoom: Int = 19, x: Int = 325955, y: Int = 164817) {
-
-
-        val client = OkHttpClient()
 
         val executor = Executors.newFixedThreadPool(sizeField * sizeField)
 
@@ -55,7 +60,8 @@ class MainActivity : AppCompatActivity() {
 
                     client.newCall(request).execute().use {
                         val result = it.body?.byteStream()
-                        pictureModel[_x][_y] = BitmapFactory.decodeStream(result)
+                        lru.put("${_x}x${_y}", BitmapFactory.decodeStream(result))
+                        //pictureModel[_x][_y] = BitmapFactory.decodeStream(result)
                     }
                 }
                 executor.execute(worker)
@@ -66,9 +72,15 @@ class MainActivity : AppCompatActivity() {
 
         for (xOffset in 0 until sizeField) {
             for (yOffset in 0 until sizeField) {
-                val mapTile = MapTile(x, y, pictureModel[xOffset][yOffset])
+                //val mapTile = MapTile(x, y, pictureModel[xOffset][yOffset])
+                val mapTile = MapTile(x, y, lru.get("${xOffset}x${yOffset}"))
                 binding.customView.mapField?.setTile(yOffset, xOffset, mapTile)
             }
         }
+    }
+
+    private fun cachingNewTiles(x: Int = 325955, y: Int = 164817)
+    {
+
     }
 }

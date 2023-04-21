@@ -8,11 +8,11 @@
 
     <com.broadcast.customview.CustomViewModel
         android:id="@+id/customView"
-        android:layout_width="256dp"
-        android:layout_height="256dp"
+        android:layout_width="1024dp"
+        android:layout_height="1024dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
