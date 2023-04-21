@@ -8,8 +8,8 @@
 
     <com.broadcast.customview.CustomViewModel
         android:id="@+id/customView"
-        android:layout_width="1024dp"
-        android:layout_height="1024dp"
+        android:layout_width="2048dp"
+        android:layout_height="2048dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -19,7 +19,13 @@ class MapField(
         if (row < 0 || column < 0 || row >= rows || column >= columns) return
         if (tiles[row][column] != tile) {
             tiles[row][column] = tile
-            listeners.forEach { it?.invoke(this) }
+            updateField()
+        }
+    }
+
+    fun updateField() {
+        listeners.forEach {
+            it?.invoke(this)
         }
     }
 }

@@ -14,21 +14,27 @@ import com.utesurdako.openstreetmap.Data.onFieldChangedListener
 import java.lang.Float.min
 import kotlin.math.max
 
+typealias OnTileActionsListener = () -> Unit
+
 class CustomViewModel @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val listener: onFieldChangedListener = {
+    var dx: Float = 0f
+    var dy: Float = 0f
 
+    private val listener: onFieldChangedListener = {
+        invalidate()
     }
+    var actionsListener: OnTileActionsListener? = null
 
     var mapField: MapField? = null
         set(value) {
             field?.listeners?.remove(listener)
             field = value
-            field?.listeners?.remove(listener)
+            value?.listeners?.add(listener)
             updateViewSizes()
             requestLayout()
             invalidate()
@@ -42,7 +48,7 @@ class CustomViewModel @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        mapField?.listeners?.remove (listener)
+        mapField?.listeners?.add (listener)
     }
 
     override fun onDetachedFromWindow() {
@@ -99,6 +105,10 @@ class CustomViewModel @JvmOverloads constructor(
         if (tileSize == 0f) return
         if (fieldRect.width() <= 0) return
         if (fieldRect.height() <= 0) return
+
+        canvas?.translate(dx, dy)
+//        dx = 0f
+//        dy = 0f
 
         val field = this.mapField ?: return
         for (row in 0 until field.rows) {
